@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: upg-app-deployment
+  labels:
+    app: upg-app-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: upg-app-deployment
+  template:
+    metadata:
+      labels:
+        app: upg-app-deployment
+    spec:
+      containers:
+      - name: upg-app
+        image: public.ecr.aws/y2j8x9n3/upg-app:latest
+        ports:
+        - containerPort: 8081
+      tolerations:
+      - key: "special"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"

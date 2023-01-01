@@ -1,0 +1,26 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: saurav-capstone-cluster # name of cluster
+  region: ap-south-1
+
+nodeGroups: # Refer: https://github.com/weaveworks/eksctl/blob/main/examples/05-advanced-nodegroups.yaml
+  - name: private-1a
+    labels: { role: workers }
+    tags:
+      k8s.io/cluster-autoscaler/enabled: "true" # tag is needed for cluster autoscaler. Refer: https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/cloudprovider/aws/README.md#auto-discovery-setup
+      k8s.io/cluster-autoscaler/saurav-capstone-cluster: "shared" # cluster name tag is optional in latest versions of EKS
+    instancesDistribution:
+      instanceTypes:
+        - t3a.medium
+    desiredCapacity: 1
+    minSize: 0
+    maxSize: 5
+    privateNetworking: true # include only in private subnet
+    subnets:
+      - subnet-0d801e88cf460f957 # 1 AZ is enough for testing
+    taints:
+      - key: special
+        value: "true"
+        effect: NoSchedule

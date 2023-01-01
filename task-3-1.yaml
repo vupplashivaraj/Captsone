@@ -1,0 +1,64 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-server-svc
+spec:
+  selector:
+    app:  redis-server
+  ports:
+    - protocol: TCP
+      port: 6379
+      targetPort: 6379
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis-server
+spec:
+  selector:
+    matchLabels:
+      app:  redis-server # has to match .spec.template.metadata.labels
+  serviceName: "redis-server-service"
+  replicas: 1 # by default is 1
+  template:
+    metadata:
+      labels:
+        app: redis-server # has to match .spec.selector.matchLabels
+    spec:
+      containers:
+      - name: redis
+        image: redis:alpine
+        resources:
+          requests:
+            cpu: 200m
+            memory: 200Mi
+        ports:
+        - containerPort: 6379
+        volumeMounts:
+        - name: www
+          mountPath: /var/lib/redis
+      volumes:
+        - name: config
+          configMap:
+            name: redis-config
+            items:
+            - key: redis-config
+              path: redis.conf
+  volumeClaimTemplates:
+  - metadata:
+      name: www
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 4Gi
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-config
+data:
+  redis-config: |
+    dir /var/lib/redis
+    appendonly yes
+    protected-mode no
