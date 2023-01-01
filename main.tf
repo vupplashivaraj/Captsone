@@ -17,7 +17,7 @@ provider "aws" {
 
 # Create S3 Bucket
 resource "aws_s3_bucket" "tf_bucket" {
-  bucket = "saurav-tf-bucket"
+  bucket = "shivaraj-tf-bucket"
   tags = {
     Name = "tf backend"
   }
